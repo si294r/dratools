@@ -1,0 +1,202 @@
+<!-- Valadestra@2018 -->
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+
+        <title></title>
+    </head>
+    <body>
+        <br>
+        <div class="container"><h2>Balance Check</h2></div>		
+        <div class="container">
+            <p></P>
+        </div>
+
+        <div class="container">
+            <div class="mx-auto" style="width: 200px;">
+                <p><h5></h5></p>
+            </div>
+            <p class="col-sm-3">Petunjuk : </p>
+            <p class="col-sm-12">Gunakan feature ini untuk memeriksa asset balance pada banyak wallet. Click tombol 'Browse...' dan pilih directory tempat menyimpan file .txt yang berisi daftar Secret Key wallets yang akan di check asset balancenya. Lalu pilih jenis asset balance yang akan di check. Click tombol 'Check Balance' untuk memulai pemeriksaan dan data jumlah asset akan ditampilkan di halaman browser.</p>	
+            <br/>
+        </div>
+        <p><div class="container"></p>
+        <div class="row">
+
+            <div class="col-md-12">
+                <div name="frm_send" id="frm_send">
+                    <p><div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Pilih .txt Secret Key</label>
+                        <div class="col-sm-5">
+                            <input required='required' type="file" class="form-control-file" name="file" id="file">
+                            <!--<input type="text" class="form-control" id="receiver" placeholder="Public Address" name="receiver">-->
+                        </div></p>
+                    </div>								
+
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Jenis Asset</label>
+                        <div class="col-sm-5">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="asset" id="inlineRadio1" value="credit_alphanum4" checked>
+                                <label class="form-check-label" for="inlineRadio1">DRA</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="asset" id="inlineRadio2" value="native">
+                                <label class="form-check-label" for="inlineRadio2">XLM</label>
+                            </div>							
+                        </div>
+                    </div><br>
+                    <button id="check_btn" class="btn btn-primary">Check Balance</button> 
+                    <a class="btn btn-primary" href="Main_Menu.html">Back To Main Menu</a>
+                    <div class="form-group row">
+                        <div class="form-check form-check-inline">
+                            <div id ='summary'></div>
+                            <p><div id='result'></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="stellar-sdk.js"></script>
+
+        <table id="hasil" class='table table-condensed table-bordered'>
+
+            <script>
+                var baris = 1;
+                var total = 0;
+				var lines = [];
+                function check_bal(sourceSecretKey) {
+
+                    // console.log(sourceSecretKey);
+					if (typeof sourceSecretKey == 'undefined') return;
+                    var sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+                    var publicKey = sourceKeypair.publicKey();
+                    // var publicKey = accountID.slice(0, 56);
+                    var pub_key = [];
+                    var bal;
+                    var curr;
+
+                    server.loadAccount(publicKey)
+                            .then(function (account) {
+                                account.balances.forEach(function (balance) {
+
+                                    var asset = "";
+                                    var radios = $("input[name='asset']:checked").val();
+                                    //console.log(balance.asset_type);
+                                    if (balance.asset_type === radios) {
+                                        asset = balance.asset_code;
+                                        if (radios === 'native') {
+                                            asset = 'XLM';
+                                        }
+                                        pub_key = account.account_id;
+                                        bal = parseFloat(balance.balance);
+                                        total += bal;
+                                        curr = asset;
+                                        console.log(account.account_id + "," + asset + "," + balance.balance);
+                                        // fs.appendFile('CheckBalance.txt', account.account_id + "," + asset + "," + balance.balance + "\n", function(err) {});
+                                        $("#hasil").append("<tr><td>" + baris + "</td><td>" + pub_key + "</td><td>" + curr + "</td><td>" + number_format(bal) + "</td></tr>");
+                                        $("#summary").html("<br/> Jumlah account =" + baris + ", Total Amount = " + number_format(total) + " " + curr);
+                                        baris = baris + 1;
+                                    }
+
+                                });
+
+                                //pub_key + "," + curr + "," + bal); 
+                            })
+                            .catch(function (error) {
+
+                            });
+
+                    $("#hasil").append("  </tbody></table>");
+
+                }
+
+
+                var server = new StellarSdk.Server('https://horizon.stellar.org');
+                StellarSdk.Network.usePublicNetwork();
+
+                var diruna = new StellarSdk.Asset('DRA', 'GAOC7ZZD7WKUS2IBHHKLBU6LDV32W265ZJH3M2EG47R5LEO5PPHOYCVF'); ///////////////////////JANGAN DIMODIF YANG INI
+
+                document.getElementById('check_btn').onclick = function () {
+                    $("#hasil").append("<thead><tr><th>No.</th><th>Public Key</th><th>Asset</th><th>Amount</th></tr></thead><tbody></div>");
+                    $("#hasil td").parent().remove();
+                    baris = 1;
+                    total = 0;
+                    var file = document.getElementById('file').files[0];
+                    var i = 1;
+                    var reader = new FileReader();
+                    reader.onload = reader_load;
+                    // function (progressEvent) {
+                    //     var lines = this.result.split(/\r\n|\n/);
+                    //     //var i=1;
+                    //     for (var line = 0; line < lines.length; line++) {
+                    //         check_bal(lines[line]);
+
+                    //         //  console.log(lines[line]);
+                    //     }
+
+                    // };
+                    reader.readAsText(file);
+                };
+
+                function reader_load(progressEvent) {
+					lines = this.result.split(/\r\n|\n/);
+                    async_reader_load();
+                }
+
+                async function async_reader_load() {
+                    for (var line = 0; line < lines.length; line++) {
+                        check_bal(lines[line]);
+						await wait_limit(line);							
+                    }
+
+                }
+
+                async function wait_limit(line) {
+					while (line - baris > 2) {
+						await sleep(1000);
+					}
+					if (line > 0 && line % 5 == 0) {
+						sleep(2000);
+					} else {
+						sleep(500);
+					}
+					return Promise.resolve(1);
+                }
+
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+            </script>
+
+            <script>
+                function number_format(nStr)
+                {
+                    nStr += '';
+                    x = nStr.split('.');
+                    x1 = x[0];
+                    x2 = x.length > 1 ? '.' + x[1] : '';
+                    var rgx = /(\d+)(\d{3})/;
+                    while (rgx.test(x1)) {
+                        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                    }
+                    return x1 + x2;
+                }
+
+
+            </script>
+
+
+            </body>
+            </html>
+

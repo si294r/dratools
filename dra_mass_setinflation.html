@@ -1,0 +1,131 @@
+<!-- Valadestra@2018 -->
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		
+		<title>Diruna Apps</title>
+	</head>
+	<body><br>
+	<div class="container"><h2>Mass Set Inflation</h2></div>	
+     <p><div class="container"></P>
+		
+		</div>
+		
+		<div class="container">
+		<div class="mx-auto" style="width: 200px;">
+		<p><h5></h5></p>
+		</div>
+<p class="col-sm-3">Petunjuk : </p>
+		<p class="col-sm-12">Gunakan feature ini untuk melakukan Set Inflation pada banyak wallets. Click tombol 'Browse...' dan pilih directory tempat menyimpan file .txt yang berisi daftar Secret Key wallets yang akan di Set Inflation. Lalu click tombol 'Import' untuk mengcopy-nya secara otomatis ke dalam kolom yang tersedia. Gunakan tombol 'Reset' untuk menghapus data Secret Key dari kolom. Masukkan Address Inflation pool di inputan inflation, disini default menggunakan lumenaut inflation pool. Lalu click tombol 'Set Inflation' untuk memulai proses Set Inflation. Jangan tutup halaman browser ini sebelum proses Set Inflation selesai. Untuk menghindari kegagalan disarankan setiap file .txt Secret Key yang dieksekusi tidak lebih dari 500 Secret Key.</p>	
+		<br/>
+		</div>
+		<p><div class="container"></p>
+		 <div class="row">
+				<div class="col-md-12">
+					<div name="frm_send" id="frm_send">				
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Target Set Inflation</label>
+							<div class="col-sm-5">
+								<textarea class="form-control" id="tujuan" name="tujuan" rows="10" placeholder="Paste atau Import File .txt Secret Key Target Disini"></textarea>
+							</div>
+						</div>	
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Import Target</label>
+							<div class="col-sm-5">
+								<input id="myFile" type="file"/> <button id="import" class="btn btn-secondary" >Import</button> <button id="resetimport" class="btn btn-succes">Reset</button> 
+							</div>
+
+						</div>
+							<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Inflation</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="inflation" placeholder="Paste Public Key Inflation Disini" name="inflation" value="GCCD6AJOYZCUAQLX32ZJF2MKFFAUJ53PVCFQI3RHWKL3V47QYE2BNAUT">
+							</div>
+						</div>	
+						<br>
+						<button id="kirim" class="btn btn-primary">Set Inflation</button>
+						<a class="btn btn-primary" href="Main_Menu.html">Bact To Main Menu</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<script src="stellar-sdk.js"></script>
+		<script>
+				var hitung=0;
+			function processReceiver(){
+			var infla = $('#inflation').val();
+				if($('#tujuan').val().length == 0)return false;
+				var lines = $('#tujuan').val().split(/\r\n|\n/);
+				var sourceSecretKey = lines[0];
+				lines.shift();
+				$('#tujuan').val(lines.join("\r\n"));
+							
+				AddPool(sourceSecretKey,infla);
+			}
+			
+			function AddPool(sourceSecretKey,infla){
+				
+				hitung++;
+				var sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+				var sourcePublicKey = sourceKeypair.publicKey();
+				$('body').append("<div id='" + sourcePublicKey + "' class='container small'   >" + hitung+". Processing " + sourcePublicKey + "  </div>");
+				server.loadAccount(sourcePublicKey)
+				.then(function(account) {
+					var transaction = new StellarSdk.TransactionBuilder(account)
+					.addOperation(StellarSdk.Operation.setOptions({
+					inflationDest:infla
+					}))
+					.build();
+					transaction.sign(sourceKeypair);			
+					server.submitTransaction(transaction)
+					.then(function(transactionResult) {
+						$("#" +  sourcePublicKey).append("<a class=' small' href='" + transactionResult._links.transaction.href + "'>SUCCESS SET INFLATION</a>");
+						processReceiver(); 
+					})
+				})
+				
+				.catch(function(error) {
+					processReceiver();
+					$('body').append(error);
+				}
+				
+			);	
+			}
+		document.getElementById('import').onclick= function(){
+           var file = document.getElementById("myFile").files[0]; 
+		   var reader = new FileReader();
+			reader.onload = function (e) {
+				var textArea = document.getElementById("tujuan");
+				textArea.value = e.target.result;
+			};
+			reader.readAsText(file);
+			};	
+			
+			document.getElementById('resetimport').onclick = function(){
+			document.getElementById("tujuan").value= "";
+			document.getElementById("myFile").value = "";
+			};	
+			
+			
+			var server = new StellarSdk.Server('https://horizon.stellar.org');
+			StellarSdk.Network.usePublicNetwork();
+						
+			$('#kirim').on('click',function(e){
+				processReceiver();
+			});	
+			
+		</script>
+		
+		
+	</body>
+</html>

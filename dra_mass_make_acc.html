@@ -1,0 +1,177 @@
+<!-- Valadestra@2018 -->
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		
+
+	</head>
+	<body><br>
+		<div class="container"><h2>Create New Wallet</h2></div>
+		
+     <p><div class="container"></P>                
+		
+				
+		</div>
+		
+		<script src="stellar-sdk.js"></script>
+		<div class="container">
+		<div class="mx-auto" style="width: 200px;">
+		<p><h5></h5></p>
+		</div>
+		<p class="col-sm-3">Petunjuk : </p>
+		<p class="col-sm-12">Gunakan feature ini untuk membuat wallet baru. Tuliskan jumlah wallet yang akan dibuat pada kolom yang tersedia, lalu click tombol 'Create' untuk memulai pembuatan wallet baru. Masukkan nama masing-masing file .txt untuk Public Key dan Secret Key sesuai dengan nama yang anda tentukan pada kolom yang tersedia. Lalu click tombol 'Export' untuk masing-masing file dan save pada directory yang anda tentukan.</p>	
+		<br/>
+		</div>
+		<p><div class="container"></p>
+			<div class="row">
+				<div class="col-md-12">
+					<div name="frm_send" id="frm_send">
+	
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Jumlah Account</label>
+							<div class="col-sm-2">
+							<div class="form-check form-check-inline">
+								<input type="number" class="form-control" id="nilai" name="nilai" value="1" >
+								
+								
+								</div>
+							</div>
+						</div>								
+						<div class="form-group row">
+							
+							<p><button id="kirim_btn" class="btn btn-primary">Create</button>
+							<a class="btn btn-primary" href="Main_Menu.html">Back To Main Menu</a></p>
+						</div>	
+						
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label" id="labelpk"  style="display: none;">Nama File Public Key</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="filepk" placeholder="Ketik nama file Public Key yang Anda inginkan disini" name="filepk" style="display: none;"><br>
+								<a id="PKButton" style="display: none;"><input type="button" id="PKButton" value="Export Public Key to TXT"></a>
+							</div>
+						</div>	
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label" id="labelsk" style="display: none;">Nama File Secret Key</label>
+							<div class="col-sm-5">
+							
+						<input type="text" class="form-control" id="filesk" placeholder="Ketik nama file Secret Key yang Anda inginkan disini" name="filesk" style="display: none;"><br>
+						<a id="SKButton" style="display: none;"><input type="button" id="SKButton" value="Export Secret Key to TXT"></br></a>
+
+							</div>
+						</div>	
+		
+						
+					</div>
+				</div>
+			</div>
+		</div>		 
+
+		<div class="container">
+		 <table id="hasil" class='table table-condensed table-bordered'>
+		 </div>
+
+		<script>
+						
+
+function make_acc(){
+
+	show();
+	var pair = StellarSdk.Keypair.random();
+	var masterkey = pair.secret();
+	var address =  pair.publicKey();
+		
+	$("#hasil").append("<tr><td>"+address+"</td><td>"+masterkey+"</td></tr>");
+	$("#hasil").append("  </tbody></table>");
+}
+		
+document.getElementById('kirim_btn').onclick = function(){
+    var jumlah = $("input[name='nilai']").val();
+	$("#hasil").append("<thead><tr><th>Public Addres</th><th>Secret Key</th></tr></thead><tbody></div>");
+	$("#hasil td").parent().remove();
+	for(var line = 0; line <jumlah; line++)	make_acc();	
+		$("#hasil").append("  </tbody></table>");
+    };	
+			
+function show(){
+	$("#PKButton").show();
+	$("#SKButton").show();
+	$("#labelpk").show();
+	$("#labelsk").show();	
+	$("#filepk").show();
+	$("#filesk").show();
+	$("#ExButton").show();
+}			
+function getdata1(){			
+	var count=0;
+	userDetails1='';
+	$('table tbody tr').each(function(){
+	var detail1='';
+	$(this).find('td').each(function(){
+		count++;
+		if(count%2==1) detail1+=$(this).html()+',';
+
+	});
+	detail1=detail1.substring(0,detail1.length-1);
+	detail1+='';
+	userDetails1+=detail1+"\r\n";
+	});
+}
+
+function getdata2(){			
+	var count=0;
+	userDetails2='';
+	$('table tbody tr').each(function(){
+	var detail2='';
+	$(this).find('td').each(function(){
+		count++;
+		if(count%2==0) detail2+=$(this).html()+',';
+	});
+	detail2=detail2.substring(0,detail2.length-1);
+	detail2+='';
+	userDetails2+=detail2+"\r\n";
+	});
+}
+
+var a1=document.getElementById('PKButton');
+a1.onclick=function(){
+	getdata1();
+    var a1 = document.getElementById("PKButton");
+    var file1 = new Blob([userDetails1], {type: 'text/plain'});
+    a1.href = URL.createObjectURL(file1);
+	var nfile1= $('#filepk').val();
+	if(nfile1=='') nfile1 = "PK";
+    a1.download =  nfile1+".txt";
+}
+var a2=document.getElementById('SKButton');
+a2.onclick=function(){
+	getdata2();
+    var a2 = document.getElementById("SKButton");
+    var file2 = new Blob([userDetails2], {type: 'text/plain'});
+    a2.href = URL.createObjectURL(file2);
+	var nfile2= $('#filesk').val();
+	if(nfile2=='') nfile2 = "SK";
+    a2.download = nfile2+".txt";
+}
+var tableToExcel = (function() {
+	var uri = 'data:application/vnd.ms-excel;base64,'
+    , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+    , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+    , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+  return function(table, name) {
+    if (!table.nodeType) table = document.getElementById(table)
+    var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+    window.location.href = uri + base64(format(template, ctx))
+  }
+})()
+		
+		</script>
+</body>
+</html>

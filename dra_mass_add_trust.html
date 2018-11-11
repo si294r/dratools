@@ -1,0 +1,162 @@
+<!-- Valadestra@2018 -->
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		
+		<title>Diruna Apps</title>
+	</head>
+	<body><br>
+	<div class="container"><h2>Add Trustline</h2></div>	
+     <p><div class="container"></P>
+		
+		</div>
+		
+		<div class="container">
+		<div class="mx-auto" style="width: 200px;">
+		<p><h5></h5></p>
+		</div>
+<p class="col-sm-3">Petunjuk : </p>
+		<p class="col-sm-12">Gunakan feature ini untuk melakukan Add Trust Diruna pada banyak wallets. Click tombol 'Browse...' dan pilih directory tempat menyimpan file .txt yang berisi daftar Secret Key wallets yang akan di Add Trustline DRA. Lalu click tombol 'Import' untuk mengcopy-nya secara otomatis ke dalam kolom yang tersedia. Gunakan tombol 'Reset' untuk menghapus data Secret Key dari kolom. Lalu click tombol 'Add Trustline' untuk memulai proses Add Trust Diruna. Jangan tutup halaman browser ini sebelum proses Add trust selesai. Untuk menghindari kegagalan disarankan setiap file .txt Secret Key yang dieksekusi tidak lebih dari 500 Secret Key.</p>	
+		<br/>
+		</div>
+		<p><div class="container"></p>
+		<!--<div class="row"> <p><h3 class="col-sm-3">Diruna Mass Payments One Sender</h3></p></div>-->
+			<div class="row">
+				<div class="col-md-12">
+					<div name="frm_send" id="frm_send">
+						<!--<p><div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Secret Key</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="secretkey" placeholder="Secret Key" name="secretkey">
+							</div></p>-->
+						</div>	
+<!--						
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Jenis</label>
+							<div class="col-sm-5">
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" name="jenis" id="inlineRadio1" value="DRA" checked>
+									<label class="form-check-label" for="inlineRadio1">DRA</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" name="jenis" id="inlineRadio2" value="XLM">
+									<label class="form-check-label" for="inlineRadio2">XLM</label>
+								</div>							
+							</div>
+						</div>		-->	
+<!--						
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Jumlah</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="jumlah" placeholder="Jumlah" name="Jumlah">
+							</div>
+						</div>	-->							
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Target Add Trust</label>
+							<div class="col-sm-5">
+								<textarea class="form-control" id="tujuan" name="tujuan" rows="10" placeholder="Paste atau Import File .txt Secret Key Target Disini"></textarea>
+							</div>
+						</div>	
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Import Target</label>
+							<div class="col-sm-5">
+								<input id="myFile" type="file"/> <button id="import" class="btn btn-secondary" >Import</button> <button id="resetimport" class="btn btn-succes">Reset</button> 
+							</div>
+
+						</div>
+						<br>
+						<button id="kirim" class="btn btn-primary">Add Trustline</button>
+						<a class="btn btn-primary" href="Main_Menu.html">Bact To Main Menu</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<script src="stellar-sdk.js"></script>
+		<script>
+			function processReceiver(){
+				if($('#tujuan').val().length == 0)return false;
+				//var sourceSecretKey = $('#secretkey').val();
+				//var jumlah = $("#jumlah").val();
+				var lines = $('#tujuan').val().split(/\r\n|\n/);
+				var sourceSecretKey = lines[0];
+				//var jenis = $('input[name=jenis]:checked').val();
+				lines.shift();
+				$('#tujuan').val(lines.join("\r\n"));
+				
+				//if(jenis == 'DRA')
+				asset = new StellarSdk.Asset('DRA', 'GCJKSAQECBGSLPQWAU7ME4LVQVZ6IDCNUA5NVTPPCUWZWBN5UBFMXZ53');
+				//else 
+				//asset = new StellarSdk.Asset.native();
+				
+				AddTrust(sourceSecretKey,asset);
+			}
+			
+			function AddTrust(sourceSecretKey,asset){
+				
+				
+				var sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+				var sourcePublicKey = sourceKeypair.publicKey();
+				$('body').append("<div id='" + sourcePublicKey + "' class='container small'   >" + ". Processing " + sourcePublicKey + "  </div>");
+				server.loadAccount(sourcePublicKey)
+				.then(function(account) {
+					var transaction = new StellarSdk.TransactionBuilder(account)
+					.addOperation(StellarSdk.Operation.changeTrust({
+					asset:asset
+					//destination: receiver,
+					//startingBalance: jumlah_kirim,
+						//destination: receiver,
+						//asset: asset,
+						//amount: jumlah_kirim,
+					}))
+					.build();
+					transaction.sign(sourceKeypair);
+					server.submitTransaction(transaction)
+					.then(function(transactionResult) {
+						$("#" +  sourcePublicKey).append("<a class=' small' href='" + transactionResult._links.transaction.href + "'>SUCCESS ADD TRUST DRA</a>");
+						processReceiver();
+					})
+				})
+				
+				.catch(function(error) {
+					processReceiver();
+					$('body').append(error);
+				}
+				
+			);	}
+		document.getElementById('import').onclick= function(){
+           var file = document.getElementById("myFile").files[0]; 
+		   var reader = new FileReader();
+			reader.onload = function (e) {
+				var textArea = document.getElementById("tujuan");
+				textArea.value = e.target.result;
+			};
+			reader.readAsText(file);
+			};	
+			
+			document.getElementById('resetimport').onclick = function(){
+			document.getElementById("tujuan").value= "";
+			document.getElementById("myFile").value = "";
+			};	
+			
+			
+			var server = new StellarSdk.Server('https://horizon.stellar.org');
+			StellarSdk.Network.usePublicNetwork();
+						
+			$('#kirim').on('click',function(e){
+				processReceiver();
+			});			
+		</script>
+		
+		
+	</body>
+</html>

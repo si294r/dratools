@@ -1,0 +1,196 @@
+<!-- Valadestra@2018 -->
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	
+		<title>Diruna Apps</title>
+	</head>
+	<body><br>
+		<div class="container"><h2>Send From Many to One Wallet (DRA only)</h2></div>
+
+     <p><div class="container"></P>              
+		
+		</div>
+		
+		
+		<div class="container">
+		<div class="mx-auto" style="width: 200px;">
+		<p><h5></h5></p>
+		</div>
+<p class="col-sm-3">Petunjuk : </p>
+		<p class="col-sm-12">Gunakan feature ini untuk mengirimkan DRA atau XLM dari banyak wallet ke satu wallet yang sudah di aktifasi. Click tombol 'Browse...' dan pilih directory tempat menyimpan file .txt yang berisi daftar Secret Key wallets Pengirim. Lalu click tombol 'Import' untuk mengcopy-nya secara otomatis ke dalam kolom yang tersedia. Gunakan tombol 'Reset' untuk menghapus data Secret Key dari kolom. Pilih Jenis Asset yang akan dikirimkan, tuliskan jumlah asset yang akan dikirimkan pada kolom yang tersedia, paste Public Key penerima lalu click tombol 'Kirim' untuk memulai pengiriman. Jangan tutup halaman browser ini sebelum proses pengiriman success. Untuk menghindari kegagalan pengiriman disarankan setiap file .txt Secret Key yang dieksekusi tidak lebih dari 500 Secret Key.</p>	
+		<br/>
+		</div>
+		<p><div class="container"></p>
+			<div class="row">
+			
+				<div class="col-md-12">
+					<div name="frm_send" id="frm_send">
+							<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Pengirim</label>
+							<div class="col-sm-5">
+								<textarea class="form-control" id="sender" name="sender" rows="10" placeholder="Paste atau Import File .txt Secret Key Pengirim Disini"></textarea>
+						</div>	
+						</div>
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Import Pengirim</label>
+							<div class="col-sm-5">
+								<input id="myFile" type="file"/> <button id="import" class="btn btn-secondary" >Import</button> <button id="resetimport" class="btn btn-succes">Reset</button> 
+							</div>
+
+						</div>
+
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Jenis Asset</label>
+							<div class="col-sm-5">
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" name="jenis" id="inlineRadio1" value="DRA" checked>
+									<label class="form-check-label" for="inlineRadio1">DRA</label>
+								</div>
+								<div class="form-check form-check-inline" style="display: none;">
+									<input class="form-check-input" type="radio" name="jenis" id="inlineRadio2" value="XLM">
+									<label class="form-check-label" for="inlineRadio2">XLM</label>
+								</div>							
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Sisa Jumlah</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="jumlah" placeholder="Jumlah Asset Yang Disisakan pada wallet" name="Jumlah" value="10">
+							</div>
+						</div>							
+						<div class="form-group row">
+							<label for="inputEmail3" class="col-sm-2 col-form-label">Penerima</label>
+							<div class="col-sm-5">
+								<input type="text" class="form-control" id="receiver" placeholder="Paste Public Key Penerima Disini" name="receiver" value="GA6VCH754JCZKE2FYMCCEXFJYXQADPK4HAYD3UIYC63WUXHIA5PKD2S7">
+							</div>
+						</div>
+						<br>												
+						<button id="kirim" class="btn btn-primary">Kirim</button> 
+						<a class="btn btn-primary" href="Main_Menu.html">Back To Main Menu</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<script src="stellar-sdk.js"></script>
+		<script>
+			function processReceiver(){
+				if($('#sender').val().length == 0)return false;
+				var receiver = $('#receiver').val();
+				var jumlah = $("#jumlah").val();
+				var lines = $('#sender').val().split(/\r\n|\n/);
+				var sourceSecretKey= lines[0];
+				var jenis = $('input[name=jenis]:checked').val();
+				lines.shift();
+				$('#sender').val(lines.join("\r\n"));
+				
+				if(jenis == 'DRA')asset = new StellarSdk.Asset('DRA', 'GCJKSAQECBGSLPQWAU7ME4LVQVZ6IDCNUA5NVTPPCUWZWBN5UBFMXZ53');
+				else asset = new StellarSdk.Asset.native();
+				
+				send_payment(sourceSecretKey,receiver,jumlah,asset);
+			}
+			
+			function get_jumlah_kirim(account, sisa) {
+				if (account.balances && account.balances[0] && account.balances[0].asset_code == "DRA") {
+					//console.log("if 1");
+					var account_balance = account.balances[0].balance;
+					var jumlah_kirim = account_balance - sisa;
+					if (jumlah_kirim > 0) {
+						//console.log("if 2");
+						return jumlah_kirim.toFixed(7);
+					} else if (jumlah_kirim < 0) {
+						jumlah_kirim = account_balance - 0;
+						return jumlah_kirim.toFixed(7);
+					} else {
+						//console.log("if else 2");
+						return "0";
+					}
+				} else {
+					//console.log("if else 1");
+					return "0";
+				}
+			}
+
+			function send_payment(sourceSecretKey,receiver,jumlah_kirim,asset){
+				
+				
+				var sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+				var sourcePublicKey = sourceKeypair.publicKey();
+				$('body').append("<div id='" +  sourcePublicKey + "' class='container small'   >" + ". Sending " +  sourcePublicKey + "  </div>");
+				server.loadAccount(sourcePublicKey)
+				.then(function(account) {
+
+					//console.log(account);
+					//account.balances[0].asset_code == "DRA"
+					jumlah_kirim = get_jumlah_kirim(account, jumlah_kirim);
+					if (jumlah_kirim == "0") {
+						processReceiver();
+						return;
+					}
+
+					var transaction = new StellarSdk.TransactionBuilder(account)
+					.addOperation(StellarSdk.Operation.payment({
+					
+					//destination: receiver,
+					//startingBalance: jumlah_kirim,
+						destination: receiver,
+						asset: asset,
+						amount: jumlah_kirim,
+					}))
+					.build();
+					transaction.sign(sourceKeypair);
+					server.submitTransaction(transaction)
+					.then(function(transactionResult) {
+						$("#" +  sourcePublicKey).append("<a class=' small' href='" + transactionResult._links.transaction.href + "'>SUCCESS</a>");
+						processReceiver();
+					})
+					.catch(function(error) {
+						processReceiver();
+						$('body').append(error);
+					});
+				})
+				
+				.catch(function(error) {
+					processReceiver();
+					$('body').append(error);
+				}
+				
+			);	}   
+			
+			
+			var server = new StellarSdk.Server('https://horizon.stellar.org');
+			StellarSdk.Network.usePublicNetwork();
+						
+			$('#kirim').on('click',function(e){
+				processReceiver();
+			});	
+
+			document.getElementById('import').onclick= function(){
+           var file = document.getElementById("myFile").files[0]; 
+		   var reader = new FileReader();
+			reader.onload = function (e) {
+				var textArea = document.getElementById("sender");
+				textArea.value = e.target.result;
+			};
+			reader.readAsText(file);
+			};	
+			
+			document.getElementById('resetimport').onclick = function(){
+			document.getElementById("sender").value= "";
+			document.getElementById("myFile").value = "";
+			};				
+		</script>
+		
+		
+	</body>
+</html>
